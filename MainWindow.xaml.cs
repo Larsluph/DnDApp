@@ -44,6 +44,10 @@ namespace DnDApp
             // get files from drop payload as FileDrop format
             var payload = e.Data.GetData(DataFormats.FileDrop);
 
+            bool isCtrlPressed = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
+            bool isShiftPressed = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
+            bool isAltPressed = Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt);
+
             // if payload isn't null, get selected paths as string array
             if (payload is string[] paths)
             {
@@ -54,12 +58,16 @@ namespace DnDApp
                         if (Directory.Exists(path))
                         {
                             // Move folder
-                            Directory.Move(path, Path.Combine(TargetedDirectory, path.Split(Path.DirectorySeparatorChar).Last()));
+                            string dest = Path.Combine(TargetedDirectory, path.Split(Path.DirectorySeparatorChar).Last());
+                            if (isAltPressed) TargetedDirectory = path;
+                            else Directory.Move(path, dest);
                         }
                         else if (File.Exists(path))
                         {
                             // Move file
-                            File.Move(path, Path.Combine(TargetedDirectory, Path.GetFileName(path)), true);
+                            string dest = Path.Combine(TargetedDirectory, Path.GetFileName(path));
+                            if (isCtrlPressed) File.Copy(path, dest, true);
+                            else File.Move(path, dest, true);
                         }
                         else
                         {

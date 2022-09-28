@@ -85,10 +85,8 @@ namespace DnDApp
 
         private void SelectTarget_Click(object sender, RoutedEventArgs e)
         {
-            
-
             var dlg = new CommonOpenFileDialog();
-            dlg.Title = "My Title";
+            dlg.Title = "Select new DnD target";
             dlg.IsFolderPicker = true;
             dlg.InitialDirectory = _targetDir;
 

@@ -17,9 +17,12 @@ namespace DnDApp
         {
             get { return _targetDir; }
             set {
+                if (Directory.Exists(value))
+                {
                 _targetDir = value;
                 root.Title = "DnDApp - " + _targetDir;
             }
+        }
         }
 
         public static RoutedUICommand toggle_topmost = new("Toggle Topmost", "toggle_topmost", typeof(MainWindow));

@@ -14,9 +14,13 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="File">
-                <MenuItem Header="Change target" Click="SelectTarget_Click" />
-                <Separator />
                 <MenuItem Header="Exit" Click="Exit_Click" />
+            </MenuItem>
+            <MenuItem Header="Edit">
+                <MenuItem Header="Smart Copy" Click="ToggleSmartCopy_Click" x:Name="smartCopyToggle" />
+                <MenuItem Header="Change source" IsEnabled="False" Click="SelectSmartCopySource_Click" x:Name="smartCopySource" />
+                <Separator />
+                <MenuItem Header="Change target" Click="SelectTarget_Click" />
             </MenuItem>
             <MenuItem Header="View">
                 <MenuItem Header="Always On Top" IsChecked="{Binding Topmost, ElementName=root}" Click="Topmost_Click" />

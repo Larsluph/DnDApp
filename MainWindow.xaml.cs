@@ -166,7 +166,7 @@ namespace DnDApp
 
         private void SelectTarget_Click(object sender, RoutedEventArgs e)
         {
-            var result = OpenFolderPickerDialog("Select new DnD target", _targetDir);
+            var result = OpenFolderPickerDialog("Select new DnD target", GetParent(_targetDir));
 
             if (result is not null)
             {
@@ -188,7 +188,7 @@ namespace DnDApp
         {
             if (_smartCopySourceDir is null)
             {
-                var result = OpenFolderPickerDialog("Select new smart copy source", _targetDir);
+                var result = OpenFolderPickerDialog("Select new smart copy source", GetParent(_targetDir));
                 if (result is not null)
                 {
                     SmartCopySourceDirectory = result;
@@ -201,7 +201,7 @@ namespace DnDApp
 
         private void SelectSmartCopySource_Click(object sender, RoutedEventArgs e)
         {
-            var result = OpenFolderPickerDialog("Select new smart copy source", _smartCopySourceDir);
+            var result = OpenFolderPickerDialog("Select new smart copy source", GetParent(_smartCopySourceDir));
             if (result is not null)
             {
                 SmartCopySourceDirectory = result;
@@ -214,6 +214,13 @@ namespace DnDApp
                 root.Title = "DnDApp - " + _smartCopySourceDir + " -> " + _targetDir;
             else
                 root.Title = "DnDApp - " + _targetDir;
+        }
+
+        public static string GetParent(string path)
+        {
+            DirectoryInfo? parent = Directory.GetParent(path);
+            if (parent is null) return path;
+            else return parent.FullName;
         }
 
         public static string? OpenFolderPickerDialog(string title, string? initialDirectory)

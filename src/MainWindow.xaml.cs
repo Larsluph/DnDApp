@@ -1,10 +1,7 @@
 ﻿using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Windows;
-using System.Windows.Input;
 
 namespace DnDApp
 {
@@ -100,12 +97,12 @@ namespace DnDApp
                             
                             if (Directory.Exists(path))
                             {
-                                // Move folder
-                                dest = Path.Combine(_targetDir, path.Split(Path.DirectorySeparatorChar).Last());
+                                // path is folder
+                                dest = Path.Combine(_targetDir, GetDirName(path));
                             }
                             else if (File.Exists(path))
                             {
-                                // Move file
+                                // path is file
                                 dest = Path.Combine(_targetDir, Path.GetFileName(path));
                             }
                             else
@@ -201,7 +198,10 @@ namespace DnDApp
 
         private void SelectSmartCopySource_Click(object sender, RoutedEventArgs e)
         {
-            var result = OpenFolderPickerDialog("Select new smart copy source", GetParent(_smartCopySourceDir));
+            var initDir = _smartCopySourceDir;
+            if (initDir is null) throw new InvalidOperationException();
+
+            var result = OpenFolderPickerDialog("Select new smart copy source", GetParent(initDir));
             if (result is not null)
             {
                 SmartCopySourceDirectory = result;
@@ -211,9 +211,9 @@ namespace DnDApp
         private void UpdateTitle()
         {
             if (_smartCopySourceDir is not null)
-                root.Title = "DnDApp - " + _smartCopySourceDir + " -> " + _targetDir;
+                root.Title = "DnDApp - " + GetDirName(_smartCopySourceDir) + " -> " + GetDirName(_targetDir);
             else
-                root.Title = "DnDApp - " + _targetDir;
+                root.Title = "DnDApp - " + GetDirName(_targetDir);
         }
 
         public static string GetParent(string path)
@@ -221,6 +221,11 @@ namespace DnDApp
             DirectoryInfo? parent = Directory.GetParent(path);
             if (parent is null) return path;
             else return parent.FullName;
+        }
+
+        public static string GetDirName(string path)
+        {
+            return new DirectoryInfo(path).Name;
         }
 
         public static string? OpenFolderPickerDialog(string title, string? initialDirectory)

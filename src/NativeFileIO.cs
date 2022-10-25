@@ -154,7 +154,8 @@ namespace DnDApp
             {
                 wFunc = FO_Func.FO_MOVE,
                 pFrom = string.Join(Constants.vbNullChar, sSource) + Constants.vbNullChar,
-                pTo = sTarget
+                pTo = sTarget,
+                fFlags = FOF_Flags.FOF_ALLOWUNDO | FOF_Flags.FOF_NOCONFIRMMKDIR
             };
             return SHFileOperation(ref _ShFile);
         }
@@ -165,7 +166,8 @@ namespace DnDApp
             {
                 wFunc = FO_Func.FO_COPY,
                 pFrom = string.Join(Constants.vbNullChar, sSource) + Constants.vbNullChar,
-                pTo = sTarget
+                pTo = sTarget,
+                fFlags = FOF_Flags.FOF_ALLOWUNDO | FOF_Flags.FOF_NOCONFIRMMKDIR
             };
             return SHFileOperation(ref _ShFile);
         }
@@ -175,7 +177,8 @@ namespace DnDApp
             SHFILEOPSTRUCT _ShFile = new()
             {
                 wFunc = FO_Func.FO_DELETE,
-                pFrom = string.Join(Constants.vbNullChar, sSource) + Constants.vbNullChar
+                pFrom = string.Join(Constants.vbNullChar, sSource) + Constants.vbNullChar,
+                fFlags = FOF_Flags.FOF_ALLOWUNDO
             };
             return SHFileOperation(ref _ShFile);
         }
@@ -186,7 +189,8 @@ namespace DnDApp
             {
                 wFunc = FO_Func.FO_RENAME,
                 pFrom = sSource + Constants.vbNullChar,
-                pTo = sTarget
+                pTo = sTarget,
+                fFlags = FOF_Flags.FOF_ALLOWUNDO | FOF_Flags.FOF_NOCONFIRMMKDIR
             };
             return SHFileOperation(ref _ShFile);
         }

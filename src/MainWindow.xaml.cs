@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media;
 
 namespace DnDApp
 {
@@ -117,10 +116,18 @@ namespace DnDApp
                 else MessageBox.Show("Unexpected Error!", title, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            else if (isShiftPressed) NativeFileIO.Move(paths, dest);
-            else if (isCtrlPressed) NativeFileIO.Copy(paths, dest);
-            else if (isSameDrive) NativeFileIO.Move(paths, dest);
-            else NativeFileIO.Copy(paths, dest);
+            else
+            {
+                // Create folder to prevent moving single file to folder as file
+                // instead of inside that folder
+                // Ex: Moving file.txt to /dest instead of /dest/file.txt
+                Directory.CreateDirectory(dest);
+
+                if (isShiftPressed) NativeFileIO.Move(paths, dest);
+                else if (isCtrlPressed) NativeFileIO.Copy(paths, dest);
+                else if (isSameDrive) NativeFileIO.Move(paths, dest);
+                else NativeFileIO.Copy(paths, dest);
+            }
         }
 
         private void SelectTarget_Click(object sender, RoutedEventArgs e)
@@ -185,6 +192,11 @@ namespace DnDApp
             else return parent.FullName;
         }
 
+        /// <summary>
+        /// Returns the name of the directory if it's a directory, and the parent directroy if it's a file
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static string GetDirName(string path)
         {
             return new DirectoryInfo(path).Name;

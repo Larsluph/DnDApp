@@ -33,6 +33,16 @@
             string result = MainWindow.GetParent(path);
             Assert.AreEqual("C:\\Windows\\System32", result);
         }
+        [TestMethod]
+        public void GetParent_File()
+        {
+            // GIVEN
+            string path = @"C:\Windows\System32\cmd.exe";
+
+            // THEN
+            string result = MainWindow.GetParent(path);
+            Assert.AreEqual(@"C:\Windows\System32", result);
+        }
 
         [TestMethod]
         [DataRow("C:\\Windows\\System32")]

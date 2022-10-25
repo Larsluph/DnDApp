@@ -1,5 +1,6 @@
 ﻿using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 
@@ -52,112 +53,73 @@ namespace DnDApp
 
         private void DragOverHandler(object sender, DragEventArgs e)
         {
-            e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop) ?
-                e.KeyStates.HasFlag(DragDropKeyStates.ControlKey) ?
-                    DragDropEffects.Copy
-                    : DragDropEffects.Move
-                : DragDropEffects.None;
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.None;
+                return;
+            }
+
+            var payload = e.Data.GetData(DataFormats.FileDrop);
+            if (payload is List<string> paths)
+            {
+                var path = paths[0];
+                bool isCtrlPressed = e.KeyStates.HasFlag(DragDropKeyStates.ControlKey);
+                bool isShiftPressed = e.KeyStates.HasFlag(DragDropKeyStates.ShiftKey);
+                bool isAltPressed = e.KeyStates.HasFlag(DragDropKeyStates.AltKey);
+                bool isSameDrive = Path.GetPathRoot(path) == Path.GetPathRoot(_targetDir);
+
+                if (isAltPressed && paths.Count == 1 && Directory.Exists(path))
+                    e.Effects = DragDropEffects.Link;
+                else if (isShiftPressed)
+                    e.Effects = DragDropEffects.Move;
+                else if (isCtrlPressed)
+                    e.Effects = DragDropEffects.Copy;
+                else
+                    if (isSameDrive)
+                        e.Effects = DragDropEffects.Move;
+                    else
+                        e.Effects = DragDropEffects.Copy;
+            }
         }
 
-        // An item just got dropped in the frame
-        private void DropHandler(object sender, DragEventArgs evt)
+        /// <summary>
+        /// Triggered when an item just got dropped in the window
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <exception cref="InvalidOperationException"></exception>
+        private void DropHandler(object sender, DragEventArgs e)
         {
             // get files from drop payload as FileDrop format
-            var payload = evt.Data.GetData(DataFormats.FileDrop);
+            var payload = e.Data.GetData(DataFormats.FileDrop);
 
-            // if payload isn't null, get selected paths as string array
-            if (payload is string[] paths)
+            // if payload isn't null, get selected paths as string list
+            if (payload is List<string> paths)
             {
-                foreach (string path in paths)
+
+                string path = paths[0];
+                string dest = GetDestination(path, _targetDir, _smartCopySourceDir);
+
+                bool isCtrlPressed = e.KeyStates.HasFlag(DragDropKeyStates.ControlKey);
+                bool isShiftPressed = e.KeyStates.HasFlag(DragDropKeyStates.ShiftKey);
+                bool isAltPressed = e.KeyStates.HasFlag(DragDropKeyStates.AltKey);
+                bool isSameDrive = Path.GetPathRoot(path) == Path.GetPathRoot(dest);
+
+                if (isAltPressed && paths.Count == 1 && Directory.Exists(path))
+                    if (isShiftPressed) SmartCopySourceDirectory = path;
+                    else TargetedDirectory = path;
+                else if (isAltPressed)
                 {
-                    string dest;
-                    try
-                    {
-                        // if smart copy is enabled
-                        if (_smartCopySourceDir is not null)
-                        {
-                            // validate input file in source dir
-                            if (path.StartsWith(_smartCopySourceDir))
-                            {
-                                string relativePath = path[_smartCopySourceDir.Length..];
-                                dest = Path.Join(_targetDir, relativePath);
-                            }
-                            else
-                            {
-                                // Warn user that smartCopy can't occur
-                                MessageBox.Show("SmartCopy is enabled! You can't move files outside source folder when SmartCopy is enabled.",
-                                                "Invalid Operation",
-                                                MessageBoxButton.OK,
-                                                MessageBoxImage.Error);
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            
-                            if (Directory.Exists(path))
-                            {
-                                // path is folder
-                                dest = Path.Combine(_targetDir, GetDirName(path));
-                            }
-                            else if (File.Exists(path))
-                            {
-                                // path is file
-                                dest = Path.Combine(_targetDir, Path.GetFileName(path));
-                            }
-                            else
-                            {
-                                // ???
-                                throw new InvalidOperationException();
-                            }
-                        }
-                    }
-                    catch (Exception exception)
-                    {
-                        Console.WriteLine(exception.ToString());
-                        continue;
-                    }
-
-                    try
-                    {
-                        HandlePathOperation(path, dest, evt.KeyStates);
-                    } catch (Exception e)
-                    {
-                        MessageBox.Show(e.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
+                    string title = "Unable to change target";
+                    if (paths.Count != 1) MessageBox.Show("New target must be a single folder!", title, MessageBoxButton.OK, MessageBoxImage.Error);
+                    else if (!Directory.Exists(path)) MessageBox.Show("The new target must be an existing folder!", title, MessageBoxButton.OK, MessageBoxImage.Error);
+                    else MessageBox.Show("Unexpected Error!", title, MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
-            }
-        }
-
-        private void HandlePathOperation(string path, string dest, DragDropKeyStates states)
-        {
-            bool isCtrlPressed = states.HasFlag(DragDropKeyStates.ControlKey);
-            //bool isShiftPressed = states.HasFlag(DragDropKeyStates.ShiftKey);
-            bool isAltPressed = states.HasFlag(DragDropKeyStates.AltKey);
-
-            if (Directory.Exists(path))
-            {
-                // Move folder
-                if (isAltPressed) TargetedDirectory = path;
-                //TODO: Handle copy
-                else Directory.Move(path, dest);
-            }
-            else if (File.Exists(path))
-            {
-                // Move file
-                if (_smartCopySourceDir is not null)
-                {
-                    string? destDirName = Path.GetDirectoryName(dest);
-                    if (destDirName is not null) Directory.CreateDirectory(destDirName);
-                }
-
-                if (isCtrlPressed) File.Copy(path, dest, true);
-                else File.Move(path, dest, true);
-            }
-            else
-            {
-                // ???
-                throw new InvalidOperationException();
+                else if (isShiftPressed) NativeFileIO.Move(paths, dest);
+                else if (isCtrlPressed) NativeFileIO.Copy(paths, dest);
+                else if (isSameDrive) NativeFileIO.Move(paths, dest);
+                else NativeFileIO.Copy(paths, dest);
             }
         }
 
@@ -226,6 +188,31 @@ namespace DnDApp
         public static string GetDirName(string path)
         {
             return new DirectoryInfo(path).Name;
+        }
+
+        public static string GetDestination(string path, string targetDir, string? sourceDir)
+        {
+            // smart copy is enabled
+            if (sourceDir is not null)
+            {
+                // validate input file in source dir
+                if (path.StartsWith(sourceDir))
+                {
+                    string relativePath = path[sourceDir.Length..];
+                    return Path.Join(targetDir, relativePath[..relativePath.LastIndexOf(Path.DirectorySeparatorChar)]);
+                }
+                else
+                {
+                    // Warn user that smartCopy can't occur
+                    MessageBox.Show("SmartCopy is enabled! You can't move files outside source folder when SmartCopy is enabled.",
+                                    "Invalid Operation",
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Error);
+                    throw new InvalidOperationException("You can't move files outside source folder when SmartCopy is enabled.");
+                }
+            }
+            else
+                return targetDir;
         }
 
         public static string? OpenFolderPickerDialog(string title, string? initialDirectory)

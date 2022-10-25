@@ -63,5 +63,43 @@
             string result = MainWindow.GetDirName(path);
             Assert.AreEqual(path, result);
         }
+
+        [TestMethod]
+        [DataRow(@"C:\New Folder")]
+        [DataRow(@"C:\test.txt")]
+        public void GetDestination_NullSource(string path)
+        {
+            // GIVEN
+            string? source = null;
+            string target = @"C:\Documents";
+
+            // THEN
+            string result = MainWindow.GetDestination(path, target, source);
+            Assert.AreEqual(target, result);
+        }
+        [TestMethod]
+        public void GetDestination_File_NonNullSource()
+        {
+            // GIVEN
+            string path = @"D:\Larsluph\Downloads\New Folder\ToReencode\test.txt";
+            string? source = @"D:\Larsluph\Downloads";
+            string target = @"D:\Larsluph\Documents";
+
+            // THEN
+            string result = MainWindow.GetDestination(path, target, source);
+            Assert.AreEqual(@"D:\Larsluph\Documents\New Folder\ToReencode", result);
+        }
+        [TestMethod]
+        public void GetDestination_Folder_NonNullSource()
+        {
+            // GIVEN
+            string path = @"D:\Larsluph\Downloads\New Folder";
+            string? source = @"D:\Larsluph\Downloads";
+            string target = @"D:\Larsluph\Documents";
+
+            // THEN
+            string result = MainWindow.GetDestination(path, target, source);
+            Assert.AreEqual(@"D:\Larsluph\Documents", result);
+        }
     }
 }

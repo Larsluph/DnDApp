@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows;
+using System.Windows.Media;
 
 namespace DnDApp
 {
@@ -53,33 +55,31 @@ namespace DnDApp
 
         private void DragOverHandler(object sender, DragEventArgs e)
         {
-            if (!e.Data.GetDataPresent(DataFormats.FileDrop))
+            if (e.Data.GetData(DataFormats.FileDrop) is not string[] payload)
             {
                 e.Effects = DragDropEffects.None;
                 return;
             }
 
-            var payload = e.Data.GetData(DataFormats.FileDrop);
-            if (payload is List<string> paths)
-            {
-                var path = paths[0];
-                bool isCtrlPressed = e.KeyStates.HasFlag(DragDropKeyStates.ControlKey);
-                bool isShiftPressed = e.KeyStates.HasFlag(DragDropKeyStates.ShiftKey);
-                bool isAltPressed = e.KeyStates.HasFlag(DragDropKeyStates.AltKey);
-                bool isSameDrive = Path.GetPathRoot(path) == Path.GetPathRoot(_targetDir);
+            List<string> paths = payload.ToList();
 
-                if (isAltPressed && paths.Count == 1 && Directory.Exists(path))
-                    e.Effects = DragDropEffects.Link;
-                else if (isShiftPressed)
+            var path = paths[0];
+            bool isCtrlPressed = e.KeyStates.HasFlag(DragDropKeyStates.ControlKey);
+            bool isShiftPressed = e.KeyStates.HasFlag(DragDropKeyStates.ShiftKey);
+            bool isAltPressed = e.KeyStates.HasFlag(DragDropKeyStates.AltKey);
+            bool isSameDrive = Path.GetPathRoot(path) == Path.GetPathRoot(_targetDir);
+
+            if (isAltPressed && paths.Count == 1 && Directory.Exists(path))
+                e.Effects = DragDropEffects.Link;
+            else if (isShiftPressed)
+                e.Effects = DragDropEffects.Move;
+            else if (isCtrlPressed)
+                e.Effects = DragDropEffects.Copy;
+            else
+                if (isSameDrive)
                     e.Effects = DragDropEffects.Move;
-                else if (isCtrlPressed)
-                    e.Effects = DragDropEffects.Copy;
                 else
-                    if (isSameDrive)
-                        e.Effects = DragDropEffects.Move;
-                    else
-                        e.Effects = DragDropEffects.Copy;
-            }
+                    e.Effects = DragDropEffects.Copy;
         }
 
         /// <summary>
@@ -91,36 +91,36 @@ namespace DnDApp
         private void DropHandler(object sender, DragEventArgs e)
         {
             // get files from drop payload as FileDrop format
-            var payload = e.Data.GetData(DataFormats.FileDrop);
+            if (e.Data.GetData(DataFormats.FileDrop) is not string[] payload)
+            {
+                return;
+            }
 
             // if payload isn't null, get selected paths as string list
-            if (payload is List<string> paths)
+            List<string> paths = payload.ToList();
+            string path = paths[0];
+            string dest = GetDestination(path, _targetDir, _smartCopySourceDir);
+
+            bool isCtrlPressed = e.KeyStates.HasFlag(DragDropKeyStates.ControlKey);
+            bool isShiftPressed = e.KeyStates.HasFlag(DragDropKeyStates.ShiftKey);
+            bool isAltPressed = e.KeyStates.HasFlag(DragDropKeyStates.AltKey);
+            bool isSameDrive = Path.GetPathRoot(path) == Path.GetPathRoot(dest);
+
+            if (isAltPressed && paths.Count == 1 && Directory.Exists(path))
+                if (isShiftPressed) SmartCopySourceDirectory = path;
+                else TargetedDirectory = path;
+            else if (isAltPressed)
             {
-
-                string path = paths[0];
-                string dest = GetDestination(path, _targetDir, _smartCopySourceDir);
-
-                bool isCtrlPressed = e.KeyStates.HasFlag(DragDropKeyStates.ControlKey);
-                bool isShiftPressed = e.KeyStates.HasFlag(DragDropKeyStates.ShiftKey);
-                bool isAltPressed = e.KeyStates.HasFlag(DragDropKeyStates.AltKey);
-                bool isSameDrive = Path.GetPathRoot(path) == Path.GetPathRoot(dest);
-
-                if (isAltPressed && paths.Count == 1 && Directory.Exists(path))
-                    if (isShiftPressed) SmartCopySourceDirectory = path;
-                    else TargetedDirectory = path;
-                else if (isAltPressed)
-                {
-                    string title = "Unable to change target";
-                    if (paths.Count != 1) MessageBox.Show("New target must be a single folder!", title, MessageBoxButton.OK, MessageBoxImage.Error);
-                    else if (!Directory.Exists(path)) MessageBox.Show("The new target must be an existing folder!", title, MessageBoxButton.OK, MessageBoxImage.Error);
-                    else MessageBox.Show("Unexpected Error!", title, MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-                else if (isShiftPressed) NativeFileIO.Move(paths, dest);
-                else if (isCtrlPressed) NativeFileIO.Copy(paths, dest);
-                else if (isSameDrive) NativeFileIO.Move(paths, dest);
-                else NativeFileIO.Copy(paths, dest);
+                string title = "Unable to change target";
+                if (paths.Count != 1) MessageBox.Show("New target must be a single folder!", title, MessageBoxButton.OK, MessageBoxImage.Error);
+                else if (!Directory.Exists(path)) MessageBox.Show("The new target must be an existing folder!", title, MessageBoxButton.OK, MessageBoxImage.Error);
+                else MessageBox.Show("Unexpected Error!", title, MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
+            else if (isShiftPressed) NativeFileIO.Move(paths, dest);
+            else if (isCtrlPressed) NativeFileIO.Copy(paths, dest);
+            else if (isSameDrive) NativeFileIO.Move(paths, dest);
+            else NativeFileIO.Copy(paths, dest);
         }
 
         private void SelectTarget_Click(object sender, RoutedEventArgs e)

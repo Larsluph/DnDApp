@@ -1,4 +1,4 @@
-using Microsoft.WindowsAPICodePack.Dialogs;
+﻿using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -51,16 +51,22 @@ namespace DnDApp
 
             // default target when starting app is the download folder
             _targetDir = KnownFolders.DownloadFolder;
+
             UpdateTitle();
         }
 
+        /// <summary>
+        /// Event triggered when an item is being hovered over the window
+        /// </summary>
         private void DragOverHandler(object sender, DragEventArgs e)
         {
+            // if DnD payload isn't files, disable drop and return
             if (e.Data.GetData(DataFormats.FileDrop) is not string[] payload)
             {
                 e.Effects = DragDropEffects.None;
                 return;
             }
+
 
             List<string> paths = payload.ToList();
 
@@ -70,25 +76,26 @@ namespace DnDApp
             bool isAltPressed = e.KeyStates.HasFlag(DragDropKeyStates.AltKey);
             bool isSameDrive = Path.GetPathRoot(path) == Path.GetPathRoot(_targetDir);
 
+            // Change mouse cursor appearance when hovering
             if (isAltPressed && paths.Count == 1 && Directory.Exists(path))
                 e.Effects = DragDropEffects.Link;
+
             else if (isShiftPressed)
                 e.Effects = DragDropEffects.Move;
+
             else if (isCtrlPressed)
                 e.Effects = DragDropEffects.Copy;
+
+            else if (isSameDrive)
+                e.Effects = DragDropEffects.Move;
+
             else
-                if (isSameDrive)
-                    e.Effects = DragDropEffects.Move;
-                else
-                    e.Effects = DragDropEffects.Copy;
+                e.Effects = DragDropEffects.Copy;
         }
 
         /// <summary>
-        /// Triggered when an item just got dropped in the window
+        /// Triggered when an item got dropped in the window
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <exception cref="InvalidOperationException"></exception>
         private void DropHandler(object sender, DragEventArgs e)
         {
             // get files from drop payload as FileDrop format
@@ -107,6 +114,7 @@ namespace DnDApp
             bool isAltPressed = e.KeyStates.HasFlag(DragDropKeyStates.AltKey);
             bool isSameDrive = Path.GetPathRoot(path) == Path.GetPathRoot(dest);
 
+            // Handle IO OP
             if (isAltPressed && paths.Count == 1 && Directory.Exists(path))
                 if (isShiftPressed) SmartCopySourceDirectory = path;
                 else TargetedDirectory = path;
@@ -127,6 +135,9 @@ namespace DnDApp
             }
         }
 
+        /// <summary>
+        /// Triggered when the "change target" menu button is clicked
+        /// </summary>
         private void SelectTarget_Click(object sender, RoutedEventArgs e)
         {
             var result = OpenFolderPickerDialog("Select new DnD target", GetParent(_targetDir));
@@ -137,16 +148,25 @@ namespace DnDApp
             }
         }
 
+        /// <summary>
+        /// Triggered when the "Always on top" menu button is clicked
+        /// </summary>
         private void Topmost_Click(object sender, RoutedEventArgs e)
         {
             root.Topmost = !root.Topmost;
         }
 
+        /// <summary>
+        /// Triggered when the "Exit" menu button is clicked
+        /// </summary>
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }
 
+        /// <summary>
+        /// Triggered when the "Toggle Smart Copy" menu button is clicked
+        /// </summary>
         private void ToggleSmartCopy_Click(object sender, RoutedEventArgs e)
         {
             if (_smartCopySourceDir is null)
@@ -162,6 +182,9 @@ namespace DnDApp
             SmartCopySourceDirectory = null;
         }
 
+        /// <summary>
+        /// Triggered when the "Change source" menu button is clicked
+        /// </summary>
         private void SelectSmartCopySource_Click(object sender, RoutedEventArgs e)
         {
             var initDir = _smartCopySourceDir;
@@ -174,6 +197,9 @@ namespace DnDApp
             }
         }
 
+        /// <summary>
+        /// Updates window title name using source and target properties
+        /// </summary>
         private void UpdateTitle()
         {
             if (_smartCopySourceDir is not null)
@@ -182,6 +208,9 @@ namespace DnDApp
                 root.Title = "DnDApp - " + GetDirName(_targetDir);
         }
 
+        /// <summary>
+        /// Returns the parent folder of a path
+        /// </summary>
         public static string GetParent(string path)
         {
             DirectoryInfo? parent = Directory.GetParent(path);
@@ -199,6 +228,9 @@ namespace DnDApp
             return new DirectoryInfo(path).Name;
         }
 
+        /// <summary>
+        /// Returns the formatted destination (with smart copy if source given)
+        /// </summary>
         public static string GetDestination(string path, string targetDir, string? sourceDir)
         {
             // smart copy is enabled
@@ -224,6 +256,10 @@ namespace DnDApp
                 return targetDir + Path.DirectorySeparatorChar;
         }
 
+        /// <summary>
+        /// Opens an explorer window to select a folder in the filesystem
+        /// Returns its path if a folder is selected or null if the window was closed
+        /// </summary>
         public static string? OpenFolderPickerDialog(string title, string? initialDirectory)
         {
             var dlg = new CommonOpenFileDialog

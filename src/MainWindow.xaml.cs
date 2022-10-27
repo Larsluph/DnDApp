@@ -120,11 +120,6 @@ namespace DnDApp
             }
             else
             {
-                // Create folder to prevent moving single file to folder as file
-                // instead of inside that folder
-                // Ex: Moving file.txt to /dest instead of /dest/file.txt
-                Directory.CreateDirectory(dest);
-
                 if (isShiftPressed) NativeFileIO.Move(paths, dest);
                 else if (isCtrlPressed) NativeFileIO.Copy(paths, dest);
                 else if (isSameDrive) NativeFileIO.Move(paths, dest);
@@ -213,7 +208,7 @@ namespace DnDApp
                 if (path.StartsWith(sourceDir))
                 {
                     string relativePath = path[sourceDir.Length..];
-                    return Path.Join(targetDir, relativePath[..relativePath.LastIndexOf(Path.DirectorySeparatorChar)]);
+                    return Path.Join(targetDir, relativePath[..relativePath.LastIndexOf(Path.DirectorySeparatorChar)]) + Path.DirectorySeparatorChar;
                 }
                 else
                 {
@@ -226,7 +221,7 @@ namespace DnDApp
                 }
             }
             else
-                return targetDir;
+                return targetDir + Path.DirectorySeparatorChar;
         }
 
         public static string? OpenFolderPickerDialog(string title, string? initialDirectory)

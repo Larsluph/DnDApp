@@ -1,4 +1,4 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,7 +21,7 @@ namespace DnDApp
                 {
                     smartCopyToggle.IsChecked = false;
                     smartCopySource.IsEnabled = false;
-                    _smartCopySourceDir = value;
+                    _smartCopySourceDir = null;
                 }
                 else if (Directory.Exists(value))
                 {
@@ -48,7 +48,9 @@ namespace DnDApp
         public MainWindow()
         {
             InitializeComponent();
-            _targetDir = NS_KnownFolders.KnownFolders.DownloadFolder;
+
+            // default target when starting app is the download folder
+            _targetDir = KnownFolders.DownloadFolder;
             UpdateTitle();
         }
 

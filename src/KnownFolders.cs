@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace NS_KnownFolders
+namespace DnDApp
 {
     public enum KnownFolder
     {

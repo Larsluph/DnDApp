@@ -25,6 +25,9 @@
             <MenuItem Header="View">
                 <MenuItem Header="Always On Top" IsChecked="{Binding Topmost, ElementName=root}" Click="Topmost_Click" />
             </MenuItem>
+            <MenuItem Header="Debug" Visibility="Collapsed">
+                <MenuItem Header="Trigger Test Feature" Click="DebugMenu_Click" />
+            </MenuItem>
         </Menu>
     </DockPanel>
 </Window>

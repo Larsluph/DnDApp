@@ -289,5 +289,13 @@ namespace DnDApp
 
             return (dlg.ShowDialog() == CommonFileDialogResult.Ok) ? dlg.FileName : null;
         }
+
+        private void DebugMenu_Click(object sender, RoutedEventArgs e)
+        {
+            throw new InvalidOperationException();
+
+            int result = NativeFileIO.Copy(new() { @"D:\Larsluph\Documents\test.txt" }, @"D:\Larsluph\Downloads\test.txt");
+            if (result != 0) MessageBox.Show($"{result}");
+        }
     }
 }

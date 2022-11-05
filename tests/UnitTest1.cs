@@ -71,7 +71,7 @@
         {
             // GIVEN
             string? source = null;
-            string target = @"C:\Documents\";
+            string target = @"C:\Documents";
 
             // THEN
             string result = MainWindow.GetDestination(path, target, source);
@@ -87,7 +87,7 @@
 
             // THEN
             string result = MainWindow.GetDestination(path, target, source);
-            Assert.AreEqual(@"D:\Larsluph\Documents\New Folder\ToReencode\", result);
+            Assert.AreEqual(@"D:\Larsluph\Documents\New Folder\ToReencode", result);
         }
         [TestMethod]
         public void GetDestination_Folder_NonNullSource()
@@ -99,7 +99,7 @@
 
             // THEN
             string result = MainWindow.GetDestination(path, target, source);
-            Assert.AreEqual(@"D:\Larsluph\Documents\", result);
+            Assert.AreEqual(@"D:\Larsluph\Documents", result);
         }
     }
 }

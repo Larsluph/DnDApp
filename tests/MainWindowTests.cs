@@ -65,20 +65,31 @@
         }
 
         [TestMethod]
-        [DataRow(@"C:\New Folder")]
-        [DataRow(@"C:\test.txt")]
-        public void GetDestination_NullSource(string path)
+        public void GetDestination_File_WithoutSource()
         {
             // GIVEN
+            string path = @"C:\test.txt";
             string? source = null;
             string target = @"C:\Documents";
 
             // THEN
             string result = MainWindow.GetDestination(path, target, source);
-            Assert.AreEqual(target, result);
+            Assert.AreEqual(@"C:\Documents\test.txt", result);
         }
         [TestMethod]
-        public void GetDestination_File_NonNullSource()
+        public void GetDestination_Folder_WithoutSource()
+        {
+            // GIVEN
+            string path = @"C:\New Folder";
+            string? source = null;
+            string target = @"C:\Documents";
+
+            // THEN
+            string result = MainWindow.GetDestination(path, target, source);
+            Assert.AreEqual(@"C:\Documents\New Folder", result);
+        }
+        [TestMethod]
+        public void GetDestination_File_WithSource()
         {
             // GIVEN
             string path = @"D:\Larsluph\Downloads\New Folder\ToReencode\test.txt";
@@ -87,10 +98,10 @@
 
             // THEN
             string result = MainWindow.GetDestination(path, target, source);
-            Assert.AreEqual(@"D:\Larsluph\Documents\New Folder\ToReencode", result);
+            Assert.AreEqual(@"D:\Larsluph\Documents\New Folder\ToReencode\test.txt", result);
         }
         [TestMethod]
-        public void GetDestination_Folder_NonNullSource()
+        public void GetDestination_Folder_WithSource()
         {
             // GIVEN
             string path = @"D:\Larsluph\Downloads\New Folder";
@@ -99,7 +110,7 @@
 
             // THEN
             string result = MainWindow.GetDestination(path, target, source);
-            Assert.AreEqual(@"D:\Larsluph\Documents", result);
+            Assert.AreEqual(@"D:\Larsluph\Documents\New Folder", result);
         }
     }
 }

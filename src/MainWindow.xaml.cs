@@ -67,7 +67,6 @@ namespace DnDApp
                 return;
             }
 
-
             List<string> paths = payload.ToList();
 
             var path = paths[0];
@@ -106,8 +105,9 @@ namespace DnDApp
 
             // if payload isn't null, get selected paths as string list
             List<string> paths = payload.ToList();
+            List<string> dests = GetDestination(paths, _targetDir, _smartCopySourceDir);
             string path = paths[0];
-            string dest = GetDestination(path, _targetDir, _smartCopySourceDir);
+            string dest = dests[0];
 
             bool isCtrlPressed = e.KeyStates.HasFlag(DragDropKeyStates.ControlKey);
             bool isShiftPressed = e.KeyStates.HasFlag(DragDropKeyStates.ShiftKey);
@@ -128,15 +128,10 @@ namespace DnDApp
             }
             else
             {
-                // Create folder to prevent moving single file to folder as file
-                // instead of inside that folder
-                // Ex: Moving file.txt to /dest instead of /dest/file.txt
-                Directory.CreateDirectory(dest);
-
-                if (isShiftPressed) NativeFileIO.Move(paths, dest);
-                else if (isCtrlPressed) NativeFileIO.Copy(paths, dest);
-                else if (isSameDrive) NativeFileIO.Move(paths, dest);
-                else NativeFileIO.Copy(paths, dest);
+                if (isShiftPressed) NativeFileIO.Move(paths, dests);
+                else if (isCtrlPressed) NativeFileIO.Copy(paths, dests);
+                else if (isSameDrive) NativeFileIO.Move(paths, dests);
+                else NativeFileIO.Copy(paths, dests);
             }
         }
 
@@ -245,7 +240,7 @@ namespace DnDApp
                 if (path.StartsWith(sourceDir))
                 {
                     string relativePath = path[sourceDir.Length..];
-                    return Path.Join(targetDir, relativePath[..relativePath.LastIndexOf(Path.DirectorySeparatorChar)]);
+                    return Path.Join(targetDir, relativePath);
                 }
                 else
                 {
@@ -258,7 +253,12 @@ namespace DnDApp
                 }
             }
             else
-                return targetDir;
+                return targetDir + path[path.LastIndexOf(Path.DirectorySeparatorChar)..];
+        }
+        public static List<string> GetDestination(List<string> path, string targetDir, string? sourceDir)
+        {
+            IEnumerable<string> result = from pathItem in path select GetDestination(pathItem, targetDir, sourceDir);
+            return result.ToList();
         }
 
         /// <summary>

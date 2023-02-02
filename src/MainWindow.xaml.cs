@@ -52,6 +52,17 @@ namespace DnDApp
             // default target when starting app is the download folder
             _targetDir = KnownFolders.DownloadFolder;
 
+            string[] argv = Environment.GetCommandLineArgs();
+            if (argv.Length == 2)
+            {
+                if (Directory.Exists(argv[1])) _targetDir = argv[1];
+            }
+            else if (argv.Length == 3)
+            {
+                if (Directory.Exists(argv[1])) _smartCopySourceDir = argv[1];
+                if (Directory.Exists(argv[2])) _targetDir = argv[2];
+            }
+
             UpdateTitle();
         }
 

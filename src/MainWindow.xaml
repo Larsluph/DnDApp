@@ -15,6 +15,9 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="File">
+                <MenuItem Header="Open Smart Copy Folder" IsEnabled="False" Click="OpenSmartCopyFolder_Click" x:Name="openSmartCopy" />
+                <MenuItem Header="Open Target Folder" Click="OpenTargetFolder_Click" />
+                <Separator />
                 <MenuItem Header="Exit" Click="Exit_Click" />
             </MenuItem>
             <MenuItem Header="Edit">

@@ -1,6 +1,7 @@
 ﻿using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -21,12 +22,14 @@ namespace DnDApp
                 {
                     smartCopyToggle.IsChecked = false;
                     smartCopySource.IsEnabled = false;
+                    openSmartCopy.IsEnabled = false;
                     _smartCopySourceDir = null;
                 }
                 else if (Directory.Exists(value))
                 {
                     smartCopyToggle.IsChecked = true;
                     smartCopySource.IsEnabled = true;
+                    openSmartCopy.IsEnabled = true;
                     _smartCopySourceDir = value;
                 }
                 UpdateTitle();
@@ -314,6 +317,25 @@ namespace DnDApp
         {
             int result = NativeFileIO.Copy(new() { @"D:\Larsluph\Documents\test.txt" }, @"D:\Larsluph\Downloads\test.txt");
             if (result != 0) MessageBox.Show($"{result}");
+        }
+
+        private void OpenSmartCopyFolder_Click(object sender, RoutedEventArgs e)
+        {
+            if (_smartCopySourceDir is null)
+            {
+                MessageBox.Show("SmartCopy isn't enabled!",
+                                "Invalid Operation",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                return;
+            }
+
+            Process.Start("explorer.exe", _smartCopySourceDir);
+        }
+
+        private void OpenTargetFolder_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start("explorer.exe", _targetDir);
         }
     }
 }

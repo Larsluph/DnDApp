@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace DnDApp
@@ -142,10 +143,13 @@ namespace DnDApp
             }
             else
             {
-                if (isShiftPressed) NativeFileIO.Move(paths, dests);
-                else if (isCtrlPressed) NativeFileIO.Copy(paths, dests);
-                else if (isSameDrive) NativeFileIO.Move(paths, dests);
-                else NativeFileIO.Copy(paths, dests);
+                Task.Run(() =>
+                {
+                    if (isShiftPressed) NativeFileIO.Move(paths, dests);
+                    else if (isCtrlPressed) NativeFileIO.Copy(paths, dests);
+                    else if (isSameDrive) NativeFileIO.Move(paths, dests);
+                    else NativeFileIO.Copy(paths, dests);
+                });
             }
         }
 
@@ -315,8 +319,11 @@ namespace DnDApp
 
         private void DebugMenu_Click(object sender, RoutedEventArgs e)
         {
-            int result = NativeFileIO.Copy(new() { @"D:\Larsluph\Documents\test.txt" }, @"D:\Larsluph\Downloads\test.txt");
-            if (result != 0) MessageBox.Show($"{result}");
+            Task.Run(() =>
+            {
+                int result = NativeFileIO.Copy(new() { @"D:\Larsluph\Videos\Movies\The Shining\The Shining.mp4" }, @"D:\test.txt");
+                if (result != 0) MessageBox.Show($"{result}");
+            });
         }
 
         private void OpenSmartCopyFolder_Click(object sender, RoutedEventArgs e)

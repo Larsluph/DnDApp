@@ -14,11 +14,11 @@ If the source files and folders are on the same drive, they are moved, otherwise
 
 ### Exemple
 
-`C:\test.txt` will be moved to `C:\Documents\test.txt`
+`C:\test.txt` will be **moved** to `C:\Documents\test.txt`
 
 whereas
 
-`C:\test.txt` will be copied to `D:\test.txt`
+`C:\test.txt` will be **copied** to `D:\test.txt`
 
 ## Smart Copy
 
@@ -28,14 +28,14 @@ This feature will change the files' destination according to the relative path f
 
 This makes sorting through your hard drive much easier and faster.
 
-### Exemple
+### Example
 
 If you have the following configuration
 ```
 source: C:\Downloads
-target: C:\Documents
+target: D:\Documents
 ```
-`C:\Downloads\New Folder\test.txt` will be moved to `C:\Documents\New Folder\test.txt` instead of just `C:\Documents\test.txt`.
+`C:\Downloads\New Folder\test.txt` will be moved to `D:\Documents\New Folder\test.txt` instead of just `D:\Documents\test.txt`.
 
 ## Modifiers
 
@@ -43,7 +43,7 @@ Depending on the modifer keys that you press when dropping files, the default be
 
 * Alt: Change ***target*** to dropped folder (drop payload must be a single folder)
 * Alt + Shift: Change ***source*** to dropped folder (and enable smart copy if it's disabled)
-* Shift: Move Files / Folder
-* Ctrl: Copy Files / Folder
+* Shift: **Move** Files / Folder
+* Ctrl: **Copy** Files / Folder
 
 ***Note**: The Shift modifier has the precedance over Ctrl which means that if you press Shift and Ctrl, only Shift will be taken into account*

@@ -114,9 +114,7 @@ namespace DnDApp
         {
             // get files from drop payload as FileDrop format
             if (e.Data.GetData(DataFormats.FileDrop) is not string[] payload)
-            {
                 return;
-            }
 
             // if payload isn't null, get selected paths as string list
             List<string> paths = payload.ToList();           
@@ -130,13 +128,10 @@ namespace DnDApp
             if (isAltPressed && paths.Count == 1 && Directory.Exists(path))
             {
                 if (isShiftPressed)
-                {
                     SmartCopySourceDirectory = path;
-                }
                 else
-                {
                     TargetedDirectory = path;
-                }
+
                 return;
             }
 
@@ -154,9 +149,7 @@ namespace DnDApp
                 string dest = dests[0];
                 bool isSameDrive = Path.GetPathRoot(path) == Path.GetPathRoot(dest);
 
-                if (isShiftPressed) NativeFileIO.Move(paths, dests);
-                else if (isCtrlPressed) NativeFileIO.Copy(paths, dests);
-                else if (isSameDrive) NativeFileIO.Move(paths, dests);
+                if (isShiftPressed || isSameDrive) NativeFileIO.Move(paths, dests);
                 else NativeFileIO.Copy(paths, dests);
             });
         }

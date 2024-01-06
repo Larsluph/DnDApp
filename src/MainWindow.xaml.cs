@@ -114,26 +114,28 @@ namespace DnDApp
         {
             // get files from drop payload as FileDrop format
             if (e.Data.GetData(DataFormats.FileDrop) is not string[] payload)
-            {
                 return;
-            }
 
             // if payload isn't null, get selected paths as string list
-            List<string> paths = payload.ToList();
-            List<string> dests = GetDestination(paths, _targetDir, _smartCopySourceDir);
+            List<string> paths = payload.ToList();           
             string path = paths[0];
-            string dest = dests[0];
 
             bool isCtrlPressed = e.KeyStates.HasFlag(DragDropKeyStates.ControlKey);
             bool isShiftPressed = e.KeyStates.HasFlag(DragDropKeyStates.ShiftKey);
             bool isAltPressed = e.KeyStates.HasFlag(DragDropKeyStates.AltKey);
-            bool isSameDrive = Path.GetPathRoot(path) == Path.GetPathRoot(dest);
 
             // Handle IO OP
             if (isAltPressed && paths.Count == 1 && Directory.Exists(path))
-                if (isShiftPressed) SmartCopySourceDirectory = path;
-                else TargetedDirectory = path;
-            else if (isAltPressed)
+            {
+                if (isShiftPressed)
+                    SmartCopySourceDirectory = path;
+                else
+                    TargetedDirectory = path;
+
+                return;
+            }
+
+            if (isAltPressed)
             {
                 string title = "Unable to change target";
                 if (paths.Count != 1) MessageBox.Show("New target must be a single folder!", title, MessageBoxButton.OK, MessageBoxImage.Error);
@@ -141,16 +143,15 @@ namespace DnDApp
                 else MessageBox.Show("Unexpected Error!", title, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            else
+            Task.Run(() =>
             {
-                Task.Run(() =>
-                {
-                    if (isShiftPressed) NativeFileIO.Move(paths, dests);
-                    else if (isCtrlPressed) NativeFileIO.Copy(paths, dests);
-                    else if (isSameDrive) NativeFileIO.Move(paths, dests);
-                    else NativeFileIO.Copy(paths, dests);
-                });
-            }
+                List<string> dests = GetDestination(paths, _targetDir, _smartCopySourceDir);
+                string dest = dests[0];
+                bool isSameDrive = Path.GetPathRoot(path) == Path.GetPathRoot(dest);
+
+                if (isShiftPressed || isSameDrive) NativeFileIO.Move(paths, dests);
+                else NativeFileIO.Copy(paths, dests);
+            });
         }
 
         /// <summary>

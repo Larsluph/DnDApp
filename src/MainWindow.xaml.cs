@@ -149,7 +149,7 @@ namespace DnDApp
                 string dest = dests[0];
                 bool isSameDrive = Path.GetPathRoot(path) == Path.GetPathRoot(dest);
 
-                if (isShiftPressed || isSameDrive) NativeFileIO.Move(paths, dests);
+                if (isShiftPressed || isSameDrive && !isCtrlPressed) NativeFileIO.Move(paths, dests);
                 else NativeFileIO.Copy(paths, dests);
             });
         }

@@ -94,13 +94,10 @@ namespace DnDApp
             if (isAltPressed && paths.Count == 1 && Directory.Exists(path))
                 e.Effects = DragDropEffects.Link;
 
-            else if (isShiftPressed)
-                e.Effects = DragDropEffects.Move;
+            else if (isAltPressed)
+                e.Effects = DragDropEffects.None;
 
-            else if (isCtrlPressed)
-                e.Effects = DragDropEffects.Copy;
-
-            else if (isSameDrive)
+            else if (isShiftPressed || isSameDrive && !isCtrlPressed)
                 e.Effects = DragDropEffects.Move;
 
             else
@@ -141,8 +138,10 @@ namespace DnDApp
                 if (paths.Count != 1) MessageBox.Show("New target must be a single folder!", title, MessageBoxButton.OK, MessageBoxImage.Error);
                 else if (!Directory.Exists(path)) MessageBox.Show("The new target must be an existing folder!", title, MessageBoxButton.OK, MessageBoxImage.Error);
                 else MessageBox.Show("Unexpected Error!", title, MessageBoxButton.OK, MessageBoxImage.Error);
+
                 return;
             }
+
             Task.Run(() =>
             {
                 List<string> dests = GetDestination(paths, _targetDir, _smartCopySourceDir);

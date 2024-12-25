@@ -49,6 +49,8 @@ namespace DnDApp
             }
         }
 
+        public ForcedAction forcedAction = ForcedAction.DISABLED;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -114,7 +116,7 @@ namespace DnDApp
                 return;
 
             // if payload isn't null, get selected paths as string list
-            List<string> paths = payload.ToList();           
+            List<string> paths = payload.ToList();
             string path = paths[0];
 
             bool isCtrlPressed = e.KeyStates.HasFlag(DragDropKeyStates.ControlKey);
@@ -148,7 +150,7 @@ namespace DnDApp
                 string dest = dests[0];
                 bool isSameDrive = Path.GetPathRoot(path) == Path.GetPathRoot(dest);
 
-                if (isShiftPressed || isSameDrive && !isCtrlPressed) NativeFileIO.Move(paths, dests);
+                if (isShiftPressed || (isSameDrive && !isCtrlPressed) || (forcedAction == ForcedAction.MOVE && forcedAction != ForcedAction.COPY)) NativeFileIO.Move(paths, dests);
                 else NativeFileIO.Copy(paths, dests);
             });
         }
@@ -343,6 +345,30 @@ namespace DnDApp
         private void OpenTargetFolder_Click(object sender, RoutedEventArgs e)
         {
             Process.Start("explorer.exe", _targetDir);
+        }
+
+        /// <summary>
+        /// Triggered when the "Force action > Disable" menu button is clicked
+        /// </summary>
+        private void ForceAction_Disable_Click(object sender, RoutedEventArgs e)
+        {
+            forcedAction = ForcedAction.DISABLED;
+        }
+
+        /// <summary>
+        /// Triggered when the "Force action > Copy" menu button is clicked
+        /// </summary>
+        private void ForceAction_Copy_Click(object sender, RoutedEventArgs e)
+        {
+            forcedAction = ForcedAction.COPY;
+        }
+
+        /// <summary>
+        /// Triggered when the "Force action > Move" menu button is clicked
+        /// </summary>
+        private void ForceAction_Move_Click(object sender, RoutedEventArgs e)
+        {
+            forcedAction = ForcedAction.MOVE;
         }
     }
 }

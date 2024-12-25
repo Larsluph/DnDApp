@@ -25,6 +25,12 @@
                 <MenuItem Header="Change source" IsEnabled="False" Click="SelectSmartCopySource_Click" x:Name="smartCopySource" />
                 <Separator />
                 <MenuItem Header="Change target" Click="SelectTarget_Click" />
+                <Separator />
+                <MenuItem Header="Force action">
+                    <MenuItem Header="(Disable)" Click="ForceAction_Disable_Click" />
+                    <MenuItem Header="Copy" Click="ForceAction_Copy_Click" />
+                    <MenuItem Header="Move" Click="ForceAction_Move_Click" />
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="View">
                 <MenuItem Header="Always On Top" IsChecked="{Binding Topmost, ElementName=root}" Click="Topmost_Click" />

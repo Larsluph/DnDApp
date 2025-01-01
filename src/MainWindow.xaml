@@ -27,9 +27,9 @@
                 <MenuItem Header="Change target" Click="SelectTarget_Click" />
                 <Separator />
                 <MenuItem Header="Force action">
-                    <MenuItem Header="(Disable)" Click="ForceAction_Disable_Click" />
-                    <MenuItem Header="Copy" Click="ForceAction_Copy_Click" />
-                    <MenuItem Header="Move" Click="ForceAction_Move_Click" />
+                    <MenuItem Header="(Disable)" IsChecked="True" Click="ForceAction_Disable_Click" x:Name="forcedActionDisabled" />
+                    <MenuItem Header="Copy" Click="ForceAction_Copy_Click" x:Name="forcedActionCopy" />
+                    <MenuItem Header="Move" Click="ForceAction_Move_Click" x:Name="forcedActionMove" />
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="View">

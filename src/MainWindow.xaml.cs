@@ -49,7 +49,34 @@ namespace DnDApp
             }
         }
 
-        public ForcedAction forcedAction = ForcedAction.DISABLED;
+        private ForcedAction _forcedAction = ForcedAction.DISABLED;
+        public ForcedAction forcedAction
+        {
+            set
+            {
+                switch (value)
+                {
+                    case ForcedAction.DISABLED:
+                        forcedActionDisabled.IsChecked = true;
+                        forcedActionCopy.IsChecked = false;
+                        forcedActionMove.IsChecked = false;
+                        break;
+                    case ForcedAction.COPY:
+                        forcedActionDisabled.IsChecked = false;
+                        forcedActionCopy.IsChecked = true;
+                        forcedActionMove.IsChecked = false;
+                        break;
+                    case ForcedAction.MOVE:
+                        forcedActionDisabled.IsChecked = false;
+                        forcedActionCopy.IsChecked = false;
+                        forcedActionMove.IsChecked = true;
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+                _forcedAction = value;
+            }
+        }
 
         public MainWindow()
         {
@@ -150,7 +177,7 @@ namespace DnDApp
                 string dest = dests[0];
                 bool isSameDrive = Path.GetPathRoot(path) == Path.GetPathRoot(dest);
 
-                if (isShiftPressed || (isSameDrive && !isCtrlPressed) || (forcedAction == ForcedAction.MOVE && forcedAction != ForcedAction.COPY)) NativeFileIO.Move(paths, dests);
+                if ((isShiftPressed || (isSameDrive && !isCtrlPressed) || _forcedAction == ForcedAction.MOVE) && _forcedAction != ForcedAction.COPY) NativeFileIO.Move(paths, dests);
                 else NativeFileIO.Copy(paths, dests);
             });
         }
@@ -321,11 +348,6 @@ namespace DnDApp
 
         private void DebugMenu_Click(object sender, RoutedEventArgs e)
         {
-            Task.Run(() =>
-            {
-                int result = NativeFileIO.Copy(new() { @"D:\Larsluph\Videos\Movies\The Shining\The Shining.mp4" }, @"D:\test.txt");
-                if (result != 0) MessageBox.Show($"{result}");
-            });
         }
 
         private void OpenSmartCopyFolder_Click(object sender, RoutedEventArgs e)

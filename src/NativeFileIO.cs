@@ -137,7 +137,6 @@ namespace DnDApp
             /// When the function returns, this member contains a handle to a name mapping object that contains the old and new names of the renamed files. This member is used only if the fFlags member includes the FOF_WANTMAPPINGHANDLE flag.
             /// </summary>
             public IntPtr hNameMappings;
-
             /// <summary>
             /// A pointer to the title of a progress dialog box. This is a null-terminated string. This member is used only if fFlags includes the FOF_SIMPLEPROGRESS flag.
             /// </summary>
@@ -150,71 +149,71 @@ namespace DnDApp
 
         public static int Move(List<string> sSource, string sTarget)
         {
-            SHFILEOPSTRUCT _ShFile = new()
+            SHFILEOPSTRUCT _shFile = new()
             {
                 wFunc = FO_Func.FO_MOVE,
                 pFrom = string.Join(Constants.vbNullChar, sSource) + Constants.vbNullChar,
                 pTo = sTarget,
                 fFlags = FOF_Flags.FOF_ALLOWUNDO | FOF_Flags.FOF_NOCONFIRMMKDIR
             };
-            return SHFileOperation(ref _ShFile);
+            return SHFileOperation(ref _shFile);
         }
         public static int Move(List<string> sSource, List<string> sTarget)
         {
-            SHFILEOPSTRUCT _ShFile = new()
+            SHFILEOPSTRUCT _shFile = new()
             {
                 wFunc = FO_Func.FO_MOVE,
                 pFrom = string.Join(Constants.vbNullChar, sSource) + Constants.vbNullChar,
                 pTo = string.Join(Constants.vbNullChar, sTarget) + Constants.vbNullChar,
                 fFlags = FOF_Flags.FOF_ALLOWUNDO | FOF_Flags.FOF_NOCONFIRMMKDIR | FOF_Flags.FOF_MULTIDESTFILES
             };
-            return SHFileOperation(ref _ShFile);
+            return SHFileOperation(ref _shFile);
         }
 
         public static int Copy(List<string> sSource, string sTarget)
         {
-            SHFILEOPSTRUCT _ShFile = new()
+            SHFILEOPSTRUCT _shFile = new()
             {
                 wFunc = FO_Func.FO_COPY,
                 pFrom = string.Join(Constants.vbNullChar, sSource) + Constants.vbNullChar,
                 pTo = sTarget,
                 fFlags = FOF_Flags.FOF_ALLOWUNDO | FOF_Flags.FOF_NOCONFIRMMKDIR
             };
-            return SHFileOperation(ref _ShFile);
+            return SHFileOperation(ref _shFile);
         }
         public static int Copy(List<string> sSource, List<string> sTarget)
         {
-            SHFILEOPSTRUCT _ShFile = new()
+            SHFILEOPSTRUCT _shFile = new()
             {
                 wFunc = FO_Func.FO_COPY,
                 pFrom = string.Join(Constants.vbNullChar, sSource) + Constants.vbNullChar,
                 pTo = string.Join(Constants.vbNullChar, sTarget) + Constants.vbNullChar,
                 fFlags = FOF_Flags.FOF_ALLOWUNDO | FOF_Flags.FOF_NOCONFIRMMKDIR | FOF_Flags.FOF_MULTIDESTFILES
             };
-            return SHFileOperation(ref _ShFile);
+            return SHFileOperation(ref _shFile);
         }
 
         public static int Delete(List<string> sSource)
         {
-            SHFILEOPSTRUCT _ShFile = new()
+            SHFILEOPSTRUCT _shFile = new()
             {
                 wFunc = FO_Func.FO_DELETE,
                 pFrom = string.Join(Constants.vbNullChar, sSource) + Constants.vbNullChar,
                 fFlags = FOF_Flags.FOF_ALLOWUNDO
             };
-            return SHFileOperation(ref _ShFile);
+            return SHFileOperation(ref _shFile);
         }
 
         public static int Rename(string sSource, string sTarget)
         {
-            SHFILEOPSTRUCT _ShFile = new()
+            SHFILEOPSTRUCT _shFile = new()
             {
                 wFunc = FO_Func.FO_RENAME,
                 pFrom = sSource + Constants.vbNullChar,
                 pTo = sTarget,
                 fFlags = FOF_Flags.FOF_ALLOWUNDO | FOF_Flags.FOF_NOCONFIRMMKDIR
             };
-            return SHFileOperation(ref _ShFile);
+            return SHFileOperation(ref _shFile);
         }
     }
 }

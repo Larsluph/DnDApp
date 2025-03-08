@@ -11,7 +11,8 @@
         Width="500"
         AllowDrop="True"
         DragOver="DragOverHandler"
-        Drop="DropHandler">
+        Drop="DropHandler"
+        Closing="MainWindow_CloseHandler">
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="File">

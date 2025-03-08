@@ -78,6 +78,8 @@ namespace DnDApp
             }
         }
 
+        private readonly List<Task> pendingTasks = [];
+
         public MainWindow()
         {
             InitializeComponent();
@@ -111,7 +113,7 @@ namespace DnDApp
                 return;
             }
 
-            List<string> paths = payload.ToList();
+            List<string> paths = [.. payload];
 
             var path = paths[0];
             bool isCtrlPressed = e.KeyStates.HasFlag(DragDropKeyStates.ControlKey);
@@ -171,7 +173,7 @@ namespace DnDApp
                 return;
             }
 
-            Task.Run(() =>
+            var task = Task.Run(() =>
             {
                 List<string> dests = GetDestination(paths, _targetDir, _smartCopySourceDir);
                 string dest = dests[0];
@@ -180,6 +182,8 @@ namespace DnDApp
                 if ((isShiftPressed || (isSameDrive && !isCtrlPressed) || _forcedAction == ForcedAction.MOVE) && _forcedAction != ForcedAction.COPY) NativeFileIO.Move(paths, dests);
                 else NativeFileIO.Copy(paths, dests);
             });
+            pendingTasks.Add(task);
+            task.ContinueWith(pendingTasks.Remove);
         }
 
         /// <summary>
@@ -391,6 +395,17 @@ namespace DnDApp
         private void ForceAction_Move_Click(object sender, RoutedEventArgs e)
         {
             forcedAction = ForcedAction.MOVE;
+        }
+
+        private void MainWindow_CloseHandler(object sender, System.ComponentModel.CancelEventArgs e)    
+        {
+            if (pendingTasks.Count == 0) return;
+
+            MessageBoxResult result = MessageBox.Show("There are pending tasks running. Do you want to quit anyway?", "DnDApp", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (result == MessageBoxResult.No)
+            {
+                e.Cancel = true;
+            }
         }
     }
 }
